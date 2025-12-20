@@ -130,4 +130,31 @@ public class OtpViewLayout extends LinearLayout{
     public interface OtpCompleteListener {
         void onOtpComplete(String otp);
     }
+
+    public void setOtpReadOnly(boolean readOnly) {
+    for (int i = 0; i < otpLength; i++) {
+        EditText editText = (EditText) getChildAt(i);
+
+        editText.setFocusable(!readOnly);
+        editText.setClickable(!readOnly);
+        editText.setCursorVisible(!readOnly);
+        editText.setInputType(readOnly ? InputType.TYPE_NULL : InputType.TYPE_CLASS_NUMBER);
+    }
+}
+
+    public void setOtp(String otp) {
+    if (otp == null) return;
+
+    for (int i = 0; i < otpLength; i++) {
+        EditText editText = (EditText) getChildAt(i);
+
+        if (i < otp.length()) {
+            editText.setText(String.valueOf(otp.charAt(i)));
+        } else {
+            editText.setText("");
+        }
+    }
+}
+
+
 }
