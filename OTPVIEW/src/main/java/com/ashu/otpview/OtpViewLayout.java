@@ -73,10 +73,6 @@ public class OtpViewLayout extends LinearLayout{
             editText.setInputType(InputType.TYPE_CLASS_NUMBER);
             editText.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
 
-            editText.setEnabled(i == 0); // only first box enabled
-            editText.setFocusable(i == 0);
-            editText.setFocusableInTouchMode(i == 0);
-
             editText.setLayoutParams(params);
             editText.setGravity(Gravity.CENTER);
             editText.setTextColor(textColor);
@@ -97,19 +93,9 @@ public class OtpViewLayout extends LinearLayout{
 
                 @Override
                 public void afterTextChanged(Editable s) {
-
-                    // If value entered → enable next box
-                    if (s.length() == 1) {
-                        if (index < otpLength - 1) {
-                            EditText next = (EditText) getChildAt(index + 1);
-                            next.setEnabled(true);
-                            next.setFocusable(true);
-                            next.setFocusableInTouchMode(true);
-                            next.requestFocus();
-                        }
+                    if (s.length() == 1 && index < otpLength - 1) {
+                        getChildAt(index + 1).requestFocus();
                     }
-
-                    // OTP complete callback
                     if (getOtp().length() == otpLength && listener != null) {
                         listener.onOtpComplete(getOtp());
                     }
@@ -117,44 +103,11 @@ public class OtpViewLayout extends LinearLayout{
             });
 
             editText.setOnKeyListener((v, keyCode, event) -> {
-                if (event.getAction() == android.view.KeyEvent.ACTION_DOWN
-                        && keyCode == android.view.KeyEvent.KEYCODE_DEL) {
-
-                    // Case 1: current box has value
-                    if (!editText.getText().toString().isEmpty()) {
-                        editText.setText("");
-
-                        for (int j = index + 1; j < otpLength; j++) {
-                            EditText next = (EditText) getChildAt(j);
-                            next.setText("");
-                            next.setEnabled(false);
-                            next.setFocusable(false);
-                            next.setFocusableInTouchMode(false);
-                        }
-
-                        // ⭐ FIX: if first box cleared → lock others
-                        if (index == 0) {
-                            resetToFirstBox();
-                        }
-                        return true;
-                    }
-
-                    // Case 2: current empty → go to previous
-                    if (index > 0) {
-                        EditText prev = (EditText) getChildAt(index - 1);
-                        prev.setEnabled(true);
-                        prev.setFocusable(true);
-                        prev.setFocusableInTouchMode(true);
-                        prev.requestFocus();
-                        prev.setText("");
-                        return true;
-                    }
+                if (keyCode == android.view.KeyEvent.KEYCODE_DEL && editText.getText().toString().isEmpty() && index > 0) {
+                    getChildAt(index - 1).requestFocus();
                 }
                 return false;
             });
-
-
-
 
             addView(editText);
         }
@@ -177,24 +130,4 @@ public class OtpViewLayout extends LinearLayout{
     public interface OtpCompleteListener {
         void onOtpComplete(String otp);
     }
-
-    private void resetToFirstBox() {
-        for (int i = 0; i < otpLength; i++) {
-            EditText et = (EditText) getChildAt(i);
-            et.setText("");
-
-            if (i == 0) {
-                et.setEnabled(true);
-                et.setFocusable(true);
-                et.setFocusableInTouchMode(true);
-                et.requestFocus();
-            } else {
-                et.setEnabled(false);
-                et.setFocusable(false);
-                et.setFocusableInTouchMode(false);
-            }
-        }
-    }
-
-
 }
