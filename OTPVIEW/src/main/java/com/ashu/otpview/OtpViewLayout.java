@@ -15,7 +15,7 @@ import android.widget.LinearLayout;
 
 import androidx.core.view.ViewCompat;
 
-public class OtpViewLayout extends LinearLayout{
+public class OtpViewLayout extends LinearLayout {
 
     private int otpLength;
     private int boxSize;
@@ -28,7 +28,6 @@ public class OtpViewLayout extends LinearLayout{
     private int boxHeight;
 
     private float boxElevation;
-
 
 
     public OtpViewLayout(Context context, AttributeSet attrs) {
@@ -86,10 +85,12 @@ public class OtpViewLayout extends LinearLayout{
             final int index = i;
             editText.addTextChangedListener(new TextWatcher() {
                 @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                }
 
                 @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) { }
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                }
 
                 @Override
                 public void afterTextChanged(Editable s) {
@@ -129,5 +130,30 @@ public class OtpViewLayout extends LinearLayout{
 
     public interface OtpCompleteListener {
         void onOtpComplete(String otp);
+    }
+
+    public void setOtpReadOnly(boolean readOnly) {
+        for (int i = 0; i < otpLength; i++) {
+            EditText editText = (EditText) getChildAt(i);
+
+            editText.setFocusable(!readOnly);
+            editText.setClickable(!readOnly);
+            editText.setCursorVisible(!readOnly);
+            editText.setInputType(readOnly ? InputType.TYPE_NULL : InputType.TYPE_CLASS_NUMBER);
+        }
+    }
+
+    public void setOtp(String otp) {
+        if (otp == null) return;
+
+        for (int i = 0; i < otpLength; i++) {
+            EditText editText = (EditText) getChildAt(i);
+
+            if (i < otp.length()) {
+                editText.setText(String.valueOf(otp.charAt(i)));
+            } else {
+                editText.setText("");
+            }
+        }
     }
 }
