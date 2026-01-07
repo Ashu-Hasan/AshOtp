@@ -64,23 +64,29 @@ public class OtpViewLayout extends LinearLayout {
     private void initBoxes(Context context) {
         for (int i = 0; i < otpLength; i++) {
             final EditText editText = new EditText(context);
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(boxWidth, boxHeight);
+            LinearLayout.LayoutParams params =
+                    new LinearLayout.LayoutParams(boxWidth, boxHeight);
+            params.gravity = Gravity.CENTER_VERTICAL;
+
             if (i != 0) params.setMargins(boxSpacing, boxSpacing, boxSpacing, boxSpacing);
 
             editText.setSingleLine(true);
-            editText.setIncludeFontPadding(false);
             editText.setInputType(InputType.TYPE_CLASS_NUMBER);
-            editText.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
-
-            editText.setLayoutParams(params);
+            editText.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
             editText.setGravity(Gravity.CENTER);
             editText.setTextColor(textColor);
             editText.setBackgroundResource(boxBackground);
             editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(1)});
             editText.setEms(1);
 
-            // ⭐ Apply shadow/elevation
+// ✅ Font-safe settings
+            editText.setIncludeFontPadding(true);
+            editText.setPadding(0, 0, 0, 0);
+            editText.setLineSpacing(0f, 1.1f);
+
+// ⭐ Elevation
             ViewCompat.setElevation(editText, boxElevation);
+
 
             final int index = i;
             editText.addTextChangedListener(new TextWatcher() {
@@ -95,7 +101,17 @@ public class OtpViewLayout extends LinearLayout {
                 @Override
                 public void afterTextChanged(Editable s) {
                     if (s.length() == 1 && index < otpLength - 1) {
+                        EditText et = (EditText) getChildAt(index + 1);
+
+                        et.setEnabled(true);
+                        et.setFocusable(true);
+                        et.setFocusableInTouchMode(true);
+                        et.setClickable(true);
+                        et.setCursorVisible(true);
+
                         getChildAt(index + 1).requestFocus();
+                        updateBoxStates(index + 1);
+
                     }
                     if (getOtp().length() == otpLength && listener != null) {
                         listener.onOtpComplete(getOtp());
@@ -104,11 +120,35 @@ public class OtpViewLayout extends LinearLayout {
             });
 
             editText.setOnKeyListener((v, keyCode, event) -> {
-                if (keyCode == android.view.KeyEvent.KEYCODE_DEL && editText.getText().toString().isEmpty() && index > 0) {
-                    getChildAt(index - 1).requestFocus();
+
+                if (keyCode == android.view.KeyEvent.KEYCODE_DEL
+                        && event.getAction() == android.view.KeyEvent.ACTION_DOWN) {
+
+                    // Case 1: Current box has value → just clear it
+                    if (!editText.getText().toString().isEmpty()) {
+                        editText.setText("");
+                        return true;
+                    }
+
+                    // Case 2: Current box empty → go back & clear previous
+                    if (index > 0) {
+                        EditText et = (EditText) getChildAt(index - 1);
+
+                        et.setText("");
+                        et.setEnabled(true);
+                        et.setFocusable(true);
+                        et.setFocusableInTouchMode(true);
+                        et.setClickable(true);
+                        et.setCursorVisible(true);
+
+                        getChildAt(index - 1).requestFocus();
+                        updateBoxStates(index - 1);      // move focus properly
+                        return true;
+                    }
                 }
                 return false;
             });
+
 
             addView(editText);
         }
@@ -156,4 +196,29 @@ public class OtpViewLayout extends LinearLayout {
             }
         }
     }
+
+    private void updateBoxStates(int activeIndex) {
+        for (int i = 0; i < otpLength; i++) {
+            if (i != activeIndex) {
+                EditText et = (EditText) getChildAt(i);
+
+                boolean isActive = (i == activeIndex);
+
+                et.setEnabled(isActive);
+                et.setFocusable(isActive);
+                et.setFocusableInTouchMode(isActive);
+                et.setClickable(isActive);
+                et.setCursorVisible(isActive);
+
+                if (isActive) {
+                    et.setSelection(et.getText().length());
+                }
+            }
+        }
+
+        // 🔒 Request focus ONLY ONCE, safely
+        EditText active = (EditText) getChildAt(activeIndex);
+        active.post(active::requestFocus);
+    }
+
 }

@@ -24,9 +24,10 @@
         android:layout_gravity="center"
         app:boxBackground="@drawable/otp_box_bg"
         app:boxElevation="1dp"
-        app:boxHeight="35dp"
+        app:boxHeight="48dp"
+        app:boxWidth="48dp"
+        app:textSize="18sp"
         app:boxSpacing="5dp"
-        app:boxWidth="40dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
@@ -34,7 +35,6 @@
         app:layout_constraintTop_toBottomOf="@+id/textView"
         app:layout_constraintVertical_bias="0.14"
         app:otpLength="6"
-        app:textColor="@android:color/black"
-        app:textSize="5sp" />
+        app:textColor="@android:color/black" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
