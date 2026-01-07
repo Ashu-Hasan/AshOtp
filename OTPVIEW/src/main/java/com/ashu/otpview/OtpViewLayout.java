@@ -64,28 +64,42 @@ public class OtpViewLayout extends LinearLayout {
     private void initBoxes(Context context) {
         for (int i = 0; i < otpLength; i++) {
             final EditText editText = new EditText(context);
+
             LinearLayout.LayoutParams params =
                     new LinearLayout.LayoutParams(boxWidth, boxHeight);
             params.gravity = Gravity.CENTER_VERTICAL;
 
-            if (i != 0) params.setMargins(boxSpacing, boxSpacing, boxSpacing, boxSpacing);
+            if (i != 0) {
+                params.setMargins(boxSpacing, boxSpacing, boxSpacing, boxSpacing); // ✅ space between boxes
+            }
 
+            editText.setLayoutParams(params);
             editText.setSingleLine(true);
             editText.setInputType(InputType.TYPE_CLASS_NUMBER);
             editText.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
             editText.setGravity(Gravity.CENTER);
             editText.setTextColor(textColor);
-            editText.setBackgroundResource(boxBackground);
             editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(1)});
             editText.setEms(1);
 
-// ✅ Font-safe settings
+// ✅ Font-safe
             editText.setIncludeFontPadding(true);
-            editText.setPadding(0, 0, 0, 0);
             editText.setLineSpacing(0f, 1.1f);
+
+// ✅ Padding (dp-safe)
+            int padding = (int) TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    2,
+                    getResources().getDisplayMetrics()
+            );
+            editText.setPadding(padding, padding, padding, padding);
+
+// ✅ Rounded background
+            editText.setBackgroundResource(R.drawable.otp_box_bg_round);
 
 // ⭐ Elevation
             ViewCompat.setElevation(editText, boxElevation);
+
 
 
             final int index = i;
